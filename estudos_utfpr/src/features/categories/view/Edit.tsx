@@ -1,34 +1,45 @@
-import { Box, Button, FormControl, FormControlLabel, FormGroup, Grid, Paper, Switch, TextField, ThemeProvider, Typography } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
-import { useAppSelector } from "../../../app/hooks";
-import { selectCategoryById } from "../redux/slice";
-import { useState } from "react";
-import { AppTheme } from "../../../config/appTheme";
+import { Box, Paper, ThemeProvider, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { selectCategoryById, updateCategory } from "../redux/slice";
+import { ChangeEvent, useState } from "react";
 import { PaperTheme } from "../../../config/papers/editTheme";
-import { TextFieldTheme } from "../../../config/textfields/editTheme";
-import { SaveButton } from "../../../components/buttons/Save";
-import { BackButton } from "../../../components/buttons/Back";
+import { CategoryForm } from "../components/Form";
+import { Category } from "../domain/model";
 
 export const CategoryEdit = () => {
     const id = useParams().id || "";
-    const [isdisabled, setIsDisabled] = useState(false);
-    const [category, setCategory] = useState(
-        useAppSelector((state) => selectCategoryById(state, parseInt(id))),
+    const [isDisabled, setIsDisabled] = useState(false);
+    const category = 
+        useAppSelector((state) => selectCategoryById(state, id),
     );
+    // const [category, setCategory] = useState(
+    //     useAppSelector((state) => selectCategoryById(state, parseInt(id))),
+    // );
+    const [categoryState, setCategoryState] = useState<Category>(category);
+    const dispatch = useAppDispatch();
     
-    const handleChange = (e:any) => {
-        setCategory({
+    const handleChange = (e:ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setCategoryState({
             ...category,
-            [e.target.name]: e.target.value,
-            [e.target.description]: e.target.value,
+            [name]: value,
         });
     };
 
-    const handleToggle = (e:any) => {
-        setCategory({
+    const handleToggle = (e:ChangeEvent<HTMLInputElement>) => {
+        const {name, checked} = e.target;
+        setCategoryState({
             ...category,
-            [e.target.name]: e.target.checked,
+            [name]: checked,
         });};
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        dispatch(updateCategory(categoryState));
+        // setIsDisabled(true);
+        // setCategoryState(categoryState);
+    }
     
     return (
         <Box>
@@ -41,68 +52,16 @@ export const CategoryEdit = () => {
                             </Typography>
                         </Box>
                     </Box>
+
+                    <CategoryForm 
+                        category={categoryState}
+                        isDisabled={isDisabled}
+                        isLoading={false}
+                        handleSubmit={handleSubmit}
+                        handleChange={handleChange}
+                        handleToggle={handleToggle}/>
                 </Paper>
             </ThemeProvider>
-
-            <Box p={2} mt={2}>
-                <form>
-                    <Grid container spacing={3}>  
-                        <Grid item xs={12}>
-                            <FormControl fullWidth>
-                                <ThemeProvider theme={TextFieldTheme}>
-                                    <TextField
-                                        autoFocus
-                                        required
-                                        name="name"
-                                        label="Nome"
-                                        value={category.name}
-                                        disabled={isdisabled}
-                                        onChange={handleChange}
-                                        color="secondary"
-                                    />
-                                </ThemeProvider>
-                            </FormControl>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormControl fullWidth>
-                                <ThemeProvider theme={TextFieldTheme}>
-                                    <TextField
-                                        required
-                                        name="description"
-                                        label="Descrição"
-                                        value={category.description}
-                                        disabled={isdisabled}
-                                        onChange={handleChange}
-                                    />
-                                </ThemeProvider>
-                            </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <FormGroup>
-                                <FormControlLabel
-                                    control={
-                                        <Switch
-                                            checked={category.is_active}
-                                            onChange={handleToggle}
-                                            name="is_active"
-                                            inputProps={{ 'aria-label': 'controlled' } }
-                                        />
-                                    }
-                                    label="Ativo"
-                                />
-                            </FormGroup>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Box display="flex" gap={2}>
-                                <BackButton to={"/categories"}/>
-                                <SaveButton isdisabled={isdisabled}/>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </form>
-            </Box>
         </Box>
     )   
 }

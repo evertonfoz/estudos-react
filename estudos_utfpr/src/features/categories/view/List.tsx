@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, ThemeProvider, Typography } from "@mui/material"
-import { useAppSelector } from "../../../app/hooks";
-import { selectCategories } from "../redux/slice";
+import { useAppDispatch, useAppSelector } from "../../../app/hooks";
+import { deleteCategory, selectCategories } from "../redux/slice";
 import { Link } from "react-router-dom";
 import { ButtonInsertTheme } from "../../../config/buttons/insertTheme";
 import { DataGrid, GridColDef, GridDeleteIcon, GridRenderCellParams, GridRowsProp, GridToolbar } from '@mui/x-data-grid';
@@ -8,6 +8,7 @@ import { DataGrid, GridColDef, GridDeleteIcon, GridRenderCellParams, GridRowsPro
   
 export const CategoryList = ()  => {
     const categories = useAppSelector(selectCategories);
+    const dispatch = useAppDispatch();
 
     const componentProps = {
         toolbar: {
@@ -44,6 +45,7 @@ export const CategoryList = ()  => {
         { 
             field: 'id', 
             headerName: 'Id', 
+            type: 'string',
             flex: 1
         },
         { 
@@ -93,14 +95,16 @@ export const CategoryList = ()  => {
         return (
             <IconButton
                 style={{ color: 'red' }}
-                onClick={() => console.log("clicked")}
+                onClick={( ) => handleDeleteCategory(rowData.value)}
                 aria-label="delete">
                 <GridDeleteIcon/>
              </IconButton>
         );
     }
 
-    
+    function handleDeleteCategory(id: string) {
+        dispatch(deleteCategory(id));
+    }
 
     return (
         <Box maxWidth="lg" sx={{

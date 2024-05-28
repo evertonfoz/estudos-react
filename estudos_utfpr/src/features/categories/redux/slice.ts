@@ -1,10 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit/react";
 import { Category } from "../domain/model";
 import { RootState } from "../../../app/store";
-import { i } from "vitest/dist/reporters-LqC_WI4d.js";
 
-const category : Category = {
-    id: 1,
+export const category : Category = {
+    id: '1',
     name: 'Electronics',
     description: 'Electronic Items',
     is_active: true,
@@ -17,8 +16,8 @@ const category : Category = {
 export const initialState = 
     [
         category,
-        { ...category, id: 2, name: 'Books', description: 'Books', is_active: true},
-        { ...category, id: 3, name: 'Movies', description: 'Movies', is_active: false},
+        { ...category, id: '2', name: 'Books', description: 'Books', is_active: true},
+        { ...category, id: '3', name: 'Movies', description: 'Movies', is_active: false},
     ];
 
 
@@ -26,25 +25,43 @@ export const categoriesSlice = createSlice({
     name: 'categories',
     initialState : initialState,
     reducers: {
-        fetchCategories(state) {
-            // state.loading = true;
+        updateCategory(state, action) {
+            // const { id, name, description, is_active } = action.payload;
+            // const existingCategory = state.find((category) => category.id === id);
+            // if (existingCategory) {
+            //     existingCategory.name = name;
+            //     existingCategory.description = description;
+            //     existingCategory.is_active = is_active;
+            // }
+            const index = state.findIndex((category) => category.id === action.payload.id);
+            state[index] = action.payload;
         },
-        fetchCategoriesSuccess(state, action) {
-            // state.loading = false;
-            // state.categories = action.payload;
+        createCategory(state, action) {
+            state.push(action.payload);
         },
-        fetchCategoriesFailure(state, action) {
-            // state.loading = false;
-            // state.error = action.payload;
-        },
+        deleteCategory(state, action) {
+            const index = state.findIndex((category) => category.id === action.payload.id);
+            state.splice(index, 1);
+        }
+        // fetchCategories(state) {
+        //     // state.loading = true;
+        // },
+        // fetchCategoriesSuccess(state, action) {
+        //     // state.loading = false;
+        //     // state.categories = action.payload;
+        // },
+        // fetchCategoriesFailure(state, action) {
+        //     // state.loading = false;
+        //     // state.error = action.payload;
+        // },
     },
 });
 
 export const selectCategories = (state : RootState) => state.categories;
-export const selectCategoryById = (state : RootState, id : number) => {
+export const selectCategoryById = (state : RootState, id : string) => {
     const category = state.categories.find((category) => category.id === id);
     return category || {
-        id: 0,
+        id: '0',
         name: '',
         description: '',
         is_active: false,
@@ -56,3 +73,4 @@ export const selectCategoryById = (state : RootState, id : number) => {
 
 
 export default categoriesSlice.reducer;
+export const { updateCategory, createCategory, deleteCategory } = categoriesSlice.actions;
